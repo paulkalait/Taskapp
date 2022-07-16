@@ -1,10 +1,42 @@
 const { ApolloServer, gql } = require("apollo-server");
 const dotenv = require("dotenv");
+const bcrypt = require("bcryptjs")
 const { MongoClient } = require("mongodb");
 dotenv.config();
 const { DB_URI, DB_NAME } = process.env;
 
 const typeDefs = gql`
+
+#  Queries
+type Query  {
+  myTaskList: [TaskList!]!
+}
+# mutations
+type Mutation { 
+  signUp(input: SignUpInput!): AuthUser!
+  signIn(input: SignInInput!): AuthUser!
+
+}
+
+
+
+# -----------------INPUTS-----------------------
+#use input to manage the lengths of mutation parameter 
+input SignUpInput {
+  email: String!, password: String!, name: String!, avatar: String
+}
+
+input SignInInput{ 
+  email: String!
+  password: String!
+}
+# -----------------INPUTS-----------------------
+
+type AuthUser{
+  user: User!
+  token: String!
+}
+
 #  user type 
 type User { 
   id: ID!
@@ -32,13 +64,41 @@ type TaskList {
     id: ID!
     content: String!
     isCompleted: Boolean!
-    taskList: TaskList
+    taskList: TaskList!
   }
 
 `;
 
 const resolvers = {
+  Query: {
+    //function for the mytast
+    myTaskList: () => []
+  },
+  Mutation: {
+    signUp: async (_, {input }, { db}) => {
+      //pass in what you want to encrompt
+      const hashedPassword = bcrypt.hashSync(input.password);
+      const newUser = { 
+        ...input, 
+        //password will get overided and applied to input array with hased bass
+        password: hashedPassword
+      }
 
+      const result =  await db.collection('Users').insertOne(newUser)
+
+      console.log(result.ops);
+      const user = result.ops[0]
+      
+      return { 
+        user, 
+        token: 'token'
+      }
+
+    }, 
+    signIn: () => {
+
+    }
+  },
 };
 
 const start = async () => {

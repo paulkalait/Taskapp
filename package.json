@@ -22,6 +22,7 @@
   "dependencies": {
     "and": "^0.0.3",
     "apollo-server": "^3.10.0",
+    "bcryptjs": "^2.4.3",
     "dotenv": "^16.0.1",
     "graphql": "^16.5.0",
     "mongodb": "^4.8.0",
