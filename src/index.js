@@ -4,40 +4,41 @@ const { MongoClient } = require("mongodb");
 dotenv.config();
 const { DB_URI, DB_NAME } = process.env;
 
-const books = [
-  {
-    title: "The Awakening!",
-    author: "Kate Chopin!",
-  },
-  {
-    title: "City of Glass",
-    author: "Paul Auster",
-  },
-];
-
-// A schema is a collection of type definitions (hence "typeDefs")
-// that together define the "shape" of queries that are executed against
-// your data.
 const typeDefs = gql`
+#  user type 
+type User { 
+  id: ID!
+  name: String!
+  email: String!
+  avatar: String
+}
 
-  type Query {
-    books: [Book]
+type TaskList { 
+  id: ID!
+  createdAt: String! 
+  title: String!
+  # a percentage % of how far we are on the task 
+  progress: Float!
+  # array of users
+  user: [User!]!
+  # array of todos. TaskLis is parent of User and ToDo
+  todos: [ToDo!]!
+}
+
+  
+
+
+  type ToDo { 
+    id: ID!
+    content: String!
+    isCompleted: Boolean!
+    taskList: TaskList
   }
 
-  # This "Book" type defines the queryable fields for every book in our data source.
-  type Book {
-    title: String
-    author: String
-  }
 `;
 
 const resolvers = {
-  Query: {
-    books: (root, data, context) => {
-        console.log(context)
-        return books
-    },
-  },
+
 };
 
 const start = async () => {
